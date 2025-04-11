@@ -100,6 +100,17 @@ updateKeyScale();
 keyDropdown.addEventListener("change", updateKeyScale);
 scaleDropdown.addEventListener("change", updateKeyScale);
 
+//Now I need to make a function that takes in a midiNote Number and transposes it down until it
+// is in the scale that I want (or until it's pitch class is indcluded in currentscale)
+
+const scaleMap = function (noteIn) {
+  if (currentScale.includes(noteIn % 12)) {
+    return noteIn;
+  } else {
+    return scaleMap(noteIn - 1);
+  }
+};
+
 // --------------------------------------
 // Audio Context and Synth Setup
 // --------------------------------------
@@ -181,14 +192,14 @@ const midiParser = function (midiEvent) {
   switch (command) {
     case 0x90: // Note on
       if (midiEvent.data[2] > 0) {
-        startNote(midiEvent.data[1], midiEvent.data[2]);
+        startNote(scaleMap(midiEvent.data[1]), midiEvent.data[2]);
       } else {
-        stopNote(midiEvent.data[1]); // Note off if velocity is 0
+        stopNote(scaleMap(midiEvent.data[1])); // Note off if velocity is 0
       }
       break;
 
     case 0x80: // Note off
-      stopNote(midiEvent.data[1]);
+      stopNote(scaleMap(midiEvent.data[1]));
       break;
   }
 };
